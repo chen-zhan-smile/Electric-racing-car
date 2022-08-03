@@ -10,15 +10,9 @@ cv::Mat Detector_num::roi_img_finder(){
     cv::Mat gray;
 	inRange(_image,Scalar(0,0,0),Scalar(179,255,46),gray);
     imshow("原图",gray);
-    // cv::cvtColor(_image,gray,CV_RGB2GRAY);
-	// threshold(gray, gray, 100, 255, cv::THRESH_BINARY_INV);
-	// imshow("原图",gray);
-	//inRange(gray,Scalar(0,0,0),Scalar(41,36,33),gray);
-	
 	Mat element = getStructuringElement(MORPH_RECT, Size(5, 5));
 	dilate(gray,gray,element);
 	vector<vector<Point>> contours;
-	//vector<vector<Point>> contours_screening;
 	vector<Vec4i> hierarchy;
 	findContours(gray, contours,hierarchy, RETR_EXTERNAL, CHAIN_APPROX_SIMPLE);
 	fmt::print("\nsize :{}",contours.size());
@@ -26,33 +20,8 @@ cv::Mat Detector_num::roi_img_finder(){
 	for(size_t i=0;i<contours.size();i++){
 		fmt::print("\n第{}个轮廓的面积为：{}",i,contourArea(contours[i]));
 		if(contourArea(contours[i])>2000&&contourArea(contours[i])<10000){
-			//contours_screening.push_back(contours[i]);
 			RotatedRect Rota_=minAreaRect(contours[i]);
 			_roi_images_rect.push_back(Rota_);
-			// Rect tempRect=Rota_.boundingRect();
-			// Point2f vertice[4];
-			// Rota_.points(vertice);
-			// for (int i = 0; i < 4; i++){
-			// line(_image, vertice[i] , vertice[(i + 1) % 4] , Scalar(0, 255, 0), 2);
-			// //cout << "verticess" << "        1 :  " << verticess[i] << endl;
-			// 	}
-			// cv::Mat img_adjust = RotatedRect_adjust(Rota_);
-			// cv::cvtColor(img_adjust,img_adjust,CV_RGB2GRAY);
-			// threshold(img_adjust, img_adjust, 100, 255, cv::THRESH_BINARY_INV);
-			// imshow("adjust",img_adjust);
-			// vector<int>response;
-			// //cv::cvtColor(src_roi,src_roi,CV_RGB2GRAY);
-			// //threshold(src_roi, src_roi, 100, 255, cv::THRESH_BINARY_INV);
-			// //template_matching(src_roi,response);
-			// template_matching(img_adjust,response);
-			// if(response[1]<200000){
-			// 	fmt::print("\nresponse :{}",response[0]);
-			// 	fmt::print("\nrate :{}",response[1]);
-			// 	_roi_images_rect.push_back(Rota_);
-			// 	_roi_images_sort.push_back(img_adjust);
-
-
-			// 	}
 			}
 		}
 		vector<vector<Point>>().swap(contours);
@@ -74,7 +43,6 @@ bool Detector_num::sort_roi_image(){
 			Rota_.points(vertice);
 			for (int i = 0; i < 4; i++){
 			line(_image, vertice[i] , vertice[(i + 1) % 4] , Scalar(0, 255, 0), 2);
-			//cout << "verticess" << "        1 :  " << verticess[i] << endl;
 				}
 			cv::Mat img_adjust = RotatedRect_adjust(Rota_);
 			cv::Mat img_adjust_clone =img_adjust.clone();
@@ -83,19 +51,14 @@ bool Detector_num::sort_roi_image(){
 			threshold(img_adjust, img_adjust, 100, 255, cv::THRESH_BINARY_INV);
 			//imshow("adjust",img_adjust);
 			vector<int>response;
-			//cv::cvtColor(src_roi,src_roi,CV_RGB2GRAY);
-			//threshold(src_roi, src_roi, 100, 255, cv::THRESH_BINARY_INV);
-			//template_matching(src_roi,response);
 			template_matching(img_adjust,response);
 			if(response[1]>150000&&response[1]<170000){
 				fmt::print("\nresponse :{}",response[0]);
 				fmt::print("\nrate :{}",response[1]);
 				detect_response.push_back(response[0]);
-				//_roi_images_rect.push_back(Rota_);
 				_roi_images_sort.push_back(img_adjust_clone);
 				}
 	}
-	//_roi_images_rect.clear();
     return true;
 }
 
